@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="谢晶晶·人格测试">
+<meta name="theme-color" content="#fefaf6">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23d4556e'/><text x='50' y='68' text-anchor='middle' font-size='52'>🌸</text></svg>">
+<title>谢晶晶的人格测试工具</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
+
+:root {
+  --rose: #d4556e;
+  --rose-deep: #b8405a;
+  --rose-light: #f8c8d0;
+  --gold: #c8985a;
+  --gold-light: #f5e6d3;
+  --cream: #fefaf6;
+  --ink: #2c2420;
+  --ink-soft: #5c4f4a;
+  --mist: #e8e0da;
+  --white: #ffffff;
+  --shadow-sm: 0 1px 3px rgba(44,36,32,0.06);
+  --shadow-md: 0 8px 30px rgba(44,36,32,0.08);
+  --shadow-lg: 0 20px 60px rgba(44,36,32,0.12);
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans SC', -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: var(--cream);
+  overflow-x: hidden;
+}
+
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  animation: floatBlob 20s ease-in-out infinite;
+}
+.blob-1 {
+  width: 400px; height: 400px;
+  background: #f8c8d0;
+  top: -100px; left: -80px;
+  animation-delay: 0s;
+}
+.blob-2 {
+  width: 350px; height: 350px;
+  background: #f5e6d3;
+  bottom: -120px; right: -60px;
+  animation-delay: -7s;
+}
+.blob-3 {
+  width: 250px; height: 250px;
+  background: #e8d5e0;
+  top: 50%; left: 60%;
+  animation-delay: -14s;
+}
+
+@keyframes floatBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(40px, -30px) scale(1.08); }
+  50% { transform: translate(-20px, 20px) scale(0.95); }
+  75% { transform: translate(-30px, -15px) scale(1.04); }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 600px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 48px 40px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition);
+}
+
+.page { display: none; opacity: 0; transform: translateY(12px); }
+.page.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  animation: pageIn 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== WELCOME PAGE ===== */
+.welcome-brand { text-align: center; margin-bottom: 8px; }
+
+.welcome-logo {
+  width: 72px; height: 72px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--rose-light), var(--rose));
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(212,85,110,0.25);
+}
+
+.owner-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-bottom: 32px;
+}
+
+.dimensions-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.dim-card {
+  background: var(--white);
+  border: 1px solid var(--mist);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  cursor: default;
+  transition: all var(--transition);
+}
+.dim-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--rose-light);
+}
+
+.dim-card .dim-icon { font-size: 22px; margin-bottom: 6px; }
+
+.dim-card .dim-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+.dim-card .dim-desc {
+  font-size: 11px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+.info-box {
+  background: var(--gold-light);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #7a5e3a;
+  line-height: 1.7;
+  margin-bottom: 28px;
+  border-left: 3px solid var(--gold);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 15px 24px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.3px;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(212,85,110,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212,85,110,0.4);
+}
+.btn-primary:active { transform: translateY(0) scale(0.98); }
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--ink);
+  border: 1.5px solid var(--mist);
+}
+.btn-secondary:hover {
+  background: var(--cream);
+  border-color: var(--rose-light);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--rose);
+  border: 1.5px solid var(--rose-light);
+}
+.btn-outline:hover { background: rgba(248,200,208,0.15); }
+
+/* ===== QUIZ PAGE ===== */
+.progress-section { margin-bottom: 32px; }
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progress-dim-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rose);
+  letter-spacing: 1px;
+}
+
+.progress-count {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.progress-wrap {
+  background: var(--mist);
+  border-radius: 6px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rose-light), var(--rose));
+  border-radius: 6px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 12px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.question-wrap { flex: 1; display: flex; flex-direction: column; }
+
+.question-text {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 28px;
+  min-height: 66px;
+}
+
+.options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 15px 18px;
+  border: 1.5px solid var(--mist);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  font-size: 15px;
+  color: var(--ink-soft);
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.option::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(248,200,208,0.08), rgba(212,85,110,0.04));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.option:hover {
+  border-color: var(--rose-light);
+  transform: translateX(4px);
+}
+.option:hover::before { opacity: 1; }
+
+.option.selected {
+  border-color: var(--rose);
+  background: linear-gradient(135deg, rgba(248,200,208,0.15), rgba(212,85,110,0.06));
+  color: var(--ink);
+  font-weight: 600;
+  transform: translateX(4px);
+  box-shadow: 0 2px 12px rgba(212,85,110,0.1);
+}
+
+.option .radio {
+  width: 22px; height: 22px;
+  border: 2px solid var(--mist);
+  border-radius: 50%;
+  margin-right: 14px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+}
+.option.selected .radio {
+  border-color: var(--rose);
+  background: var(--rose);
+  box-shadow: 0 0 0 4px rgba(212,85,110,0.15);
+}
+.option.selected .radio::after {
+  content: '';
+  width: 8px; height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  animation: radioPop 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes radioPop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.nav-btns { display: flex; gap: 12px; margin-top: auto; }
+.nav-btns .btn { flex: 1; }
+
+/* ===== RESULT PAGE ===== */
+.result-header { text-align: center; margin-bottom: 28px; }
+
+.type-badge {
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+.type-nickname {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gold);
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+.result-divider {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--mist);
+  font-size: 8px;
+  letter-spacing: 6px;
+}
+
+.scores { margin-bottom: 24px; display: flex; flex-direction: column; gap: 6px; }
+
+.score-row { display: flex; align-items: center; gap: 10px; }
+
+.score-side {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  width: 32px;
+  flex-shrink: 0;
+}
+.score-side.left { text-align: right; }
+
+.score-bar-wrap {
+  flex: 1;
+  height: 28px;
+  background: var(--cream);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.score-bar-left, .score-bar-right {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+.score-bar-left {
+  background: var(--rose-light);
+  justify-content: flex-start;
+  padding-left: 10px;
+  border-radius: 14px 0 0 14px;
+  color: var(--rose-deep);
+}
+.score-bar-right {
+  background: linear-gradient(90deg, var(--rose), var(--rose-deep));
+  justify-content: flex-end;
+  padding-right: 10px;
+  border-radius: 0 14px 14px 0;
+}
+
+.score-mid {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: #fff;
+  border-radius: 1px;
+  z-index: 1;
+}
+
+.type-desc-card {
+  background: linear-gradient(135deg, var(--cream), var(--white));
+  border: 1px solid var(--mist);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.type-desc-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.type-desc-card p {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.8;
+}
+
+.type-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.trait-tag {
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  background: linear-gradient(135deg, rgba(248,200,208,0.2), rgba(212,85,110,0.08));
+  color: var(--rose-deep);
+  border: 1px solid rgba(248,200,208,0.4);
+}
+
+.share-section {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.share-btns { display: flex; gap: 10px; }
+.share-btns .btn { flex: 1; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  z-index: 999;
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: var(--shadow-lg);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+#shareCanvas { display: none; }
+
+@media (max-width: 520px) {
+  .container { padding: 32px 20px; border-radius: var(--radius); }
+  h1 { font-size: 26px; }
+  .type-badge { font-size: 42px; letter-spacing: 4px; }
+  .dimensions-intro { grid-template-columns: 1fr; gap: 8px; }
+  .question-text { font-size: 19px; }
+  .option { padding: 13px 15px; font-size: 14px; }
+  .nav-btns, .share-btns { flex-direction: column; }
+  .blob-1 { width: 250px; height: 250px; }
+  .blob-2 { width: 200px; height: 200px; }
+  .blob-3 { width: 150px; height: 150px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="container">
+
+  <div class="page active" id="page-welcome">
+    <div class="welcome-brand">
+      <div class="welcome-logo">&#x1F338;</div>
+      <div class="owner-name">谢晶晶</div>
+      <h1>人格测试工具</h1>
+      <p class="subtitle">探索你的性格密码，发现独一无二的自己</p>
+    </div>
+
+    <div class="dimensions-intro">
+      <div class="dim-card">
+        <div class="dim-icon">&#x26A1;</div>
+        <div class="dim-label">外向 E / 内向 I</div>
+        <div class="dim-desc">你从哪里获得能量？</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-icon">&#x1F50D;</div>
+        <div class="dim-label">实感 S / 直觉 N</div>
+        <div class="dim-desc">你如何获取信息？</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-icon">&#x2696;</div>
+        <div class="dim-label">思考 T / 情感 F</div>
+        <div class="dim-desc">你如何做决定？</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-icon">&#x1F3AF;</div>
+        <div class="dim-label">判断 J / 感知 P</div>
+        <div class="dim-desc">你如何应对外界？</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      本测试共 <b>32 题</b>，预计 3-5 分钟完成。请根据<b>真实的自己</b>而非理想中的自己作答，答案没有对错之分。
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()">
+      开始测试
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  </div>
+
+  <div class="page" id="page-quiz">
+    <div class="progress-section">
+      <div class="progress-info">
+        <span class="progress-dim-tag" id="dimTag"></span>
+        <span class="progress-count" id="progressText">第 1 / 32 题</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="question-wrap">
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsWrap"></div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-secondary" id="btnPrev" onclick="prevQuestion()" style="display:none">上一题</button>
+      <button class="btn btn-primary" id="btnNext" onclick="nextQuestion()">下一题</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-result">
+    <div class="result-header">
+      <div class="type-badge" id="typeBadge"></div>
+      <span class="type-nickname" id="typeNickname"></span>
+    </div>
+
+    <div class="result-divider">&#x2022; &#x2022; &#x2022;</div>
+
+    <div class="scores" id="scoresWrap"></div>
+
+    <div class="type-desc-card">
+      <h3 id="typeTitle"></h3>
+      <p id="typeDesc"></p>
+    </div>
+
+    <div class="type-traits" id="typeTraits"></div>
+
+    <div class="share-section">
+      <div class="share-btns">
+        <button class="btn btn-outline" onclick="shareImage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          生成图片
+        </button>
+        <button class="btn btn-primary" onclick="copyResult()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          复制结果
+        </button>
+      </div>
+      <button class="btn btn-secondary" onclick="restartQuiz()">重新测试</button>
+    </div>
+  </div>
+
+</div>
+
+<canvas id="shareCanvas" width="600" height="800"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+const questions = [
+  { dim: "E/I", forward: true,  text: "我喜欢在社交场合中结识新朋友，这让我感到兴奋。" },
+  { dim: "E/I", forward: true,  text: "在聚会或群体活动中，我往往是活跃气氛的那个人。" },
+  { dim: "E/I", forward: false, text: "我更喜欢一对一的深入交谈，而非热闹的多人聚会。" },
+  { dim: "E/I", forward: false, text: "独处时我能够充电恢复精力，长时间的社交让我疲惫。" },
+  { dim: "E/I", forward: true,  text: "我很容易与陌生人开启一段对话，不会感到尴尬。" },
+  { dim: "E/I", forward: false, text: "相比外出参加活动，我更喜欢安静地待在家里独处。" },
+  { dim: "E/I", forward: true,  text: "在团队中讨论问题时，我通常是最先表达观点的人之一。" },
+  { dim: "E/I", forward: false, text: "我需要大量独处时间来思考和整理自己的思绪。" },
+
+  { dim: "S/N", forward: true,  text: "我更关注具体的事实和细节，而非抽象的概念和理论。" },
+  { dim: "S/N", forward: true,  text: "我喜欢按照经过验证的步骤和方法做事，这样更有安全感。" },
+  { dim: "S/N", forward: false, text: "我经常沉浸在对未来的想象和各种可能性的思考中。" },
+  { dim: "S/N", forward: false, text: "我的直觉和灵感常常能指引我做出正确的判断。" },
+  { dim: "S/N", forward: true,  text: "比起书本理论，我更相信亲身实践积累的经验。" },
+  { dim: "S/N", forward: false, text: "我喜欢探索新鲜的想法和概念，即使它们暂时不实用。" },
+  { dim: "S/N", forward: true,  text: "我更愿意处理眼前实际的问题，而非思考遥远的可能性。" },
+  { dim: "S/N", forward: false, text: "我经常发现自己在思考事物背后的深层意义和规律。" },
+
+  { dim: "T/F", forward: true,  text: "做决定时，我优先考虑逻辑分析和客观事实。" },
+  { dim: "T/F", forward: true,  text: "我认为公平公正比照顾个人感受更重要。" },
+  { dim: "T/F", forward: false, text: "看到他人遭受苦难或委屈，我会不由自主地感同身受。" },
+  { dim: "T/F", forward: false, text: "做重要决定时，我会充分考虑这个决定对他人的情感影响。" },
+  { dim: "T/F", forward: true,  text: "面对问题，我更倾向于用理性分析来寻找最优解。" },
+  { dim: "T/F", forward: true,  text: "我认为直言不讳比维持表面和谐更重要，即使可能冒犯他人。" },
+  { dim: "T/F", forward: false, text: "维护人际关系的和谐比证明自己正确更让我在意。" },
+  { dim: "T/F", forward: false, text: "朋友向我倾诉烦恼时，我首先提供情感支持而非直接给出解决方案。" },
+
+  { dim: "J/P", forward: true,  text: "我喜欢提前制定详细的计划，并按部就班地执行。" },
+  { dim: "J/P", forward: true,  text: "在任务彻底完成之前，我很难真正放松下来。" },
+  { dim: "J/P", forward: false, text: "我享受随性自由的生活方式，不喜欢被计划束缚。" },
+  { dim: "J/P", forward: false, text: "面对截止日期，我往往在最后一刻才开始全力冲刺。" },
+  { dim: "J/P", forward: true,  text: "我的工作和生活空间通常保持整洁有序的状态。" },
+  { dim: "J/P", forward: false, text: "我喜欢保留多种选择和可能性，不急于做最终决定。" },
+  { dim: "J/P", forward: true,  text: "制定待办清单和日程安排让我感到安心和有掌控感。" },
+  { dim: "J/P", forward: false, text: "计划突然改变不会让我感到困扰，我乐于随机应变。" },
+];
+
+var dimNames = {
+  "E/I": "外向 E / 内向 I",
+  "S/N": "实感 S / 直觉 N",
+  "T/F": "思考 T / 情感 F",
+  "J/P": "判断 J / 感知 P",
+};
+
+var typeData = {
+  "INTJ": { name:"建筑师", traits:["战略思维","独立自主","追求卓越","理性冷静"], desc:"你具有远见卓识和强大的战略规划能力。你善于系统性地思考问题，制定长远计划并坚定执行。你重视知识和能力，不断追求自我提升，在面对复杂挑战时保持冷静和理性。你不容易被情绪左右，信任逻辑和数据。在人际交往中你较为内敛，更看重深度而非广度。" },
+  "INTP": { name:"逻辑学家", traits:["逻辑严密","好奇心强","创新思维","独立思考"], desc:"你拥有强烈的求知欲和出色的分析能力。你喜欢探索事物的本质原理，对抽象概念和理论有天然的亲和力。你思维灵活，善于从不同角度审视问题并提出创新方案。你珍视智识上的自由和独立，不喜欢被规则束缚。在社交方面你比较随和，但需要大量独处时间进行思考。" },
+  "ENTJ": { name:"指挥官", traits:["领导力强","果断坚定","目标导向","战略眼光"], desc:"你是天生的领导者，拥有强大的意志力和组织能力。你善于制定目标并激励他人一起实现，在团队中自然承担起指挥角色。你决策果断，行动力强，面对困难时展现出不屈不挠的精神。你追求效率和结果，讨厌拖沓和低效。" },
+  "ENTP": { name:"辩论家", traits:["思维敏捷","能言善辩","创意无限","挑战传统"], desc:"你拥有敏捷的头脑和永不枯竭的创造力。你享受智力上的挑战和辩论，不是为了争胜而是为了探索真理。你善于发现事物之间的联系，提出大胆新颖的想法。你不喜欢墨守成规，乐于挑战现状和传统观念。你的热情和幽默感让你成为极具魅力的交谈对象。" },
+  "INFJ": { name:"提倡者", traits:["洞察力强","理想主义","温暖坚定","富有远见"], desc:"你拥有深刻的洞察力和坚定的价值观。你能够敏锐地感知他人的情感和需求，并真诚地希望帮助他人成长。你心怀理想，渴望让世界变得更美好，并愿意为此付出实际行动。你的内心世界丰富而复杂，外表温和但内心有着不可动摇的原则。" },
+  "INFP": { name:"调停者", traits:["理想主义","富有同理心","创造力强","忠于价值"], desc:"你是一个充满理想主义和同情心的人。你内心有一套坚定的价值观体系，所有行动都以此为准则。你拥有丰富的想象力和创造力，善于用独特的方式表达自己。你对他人充满真诚的关怀，愿意倾听和理解不同的声音。有时你显得安静内敛，但内心世界极为丰富。" },
+  "ENFJ": { name:"主人公", traits:["魅力领袖","善解人意","激励他人","责任心强"], desc:"你是天生的教育者和引导者，拥有感染他人的独特魅力。你善于理解他人的需求和潜力，并乐于帮助他们成为更好的自己。你在群体中自然地扮演凝聚者和引领者的角色。你重视和谐的人际关系，愿意为了他人的成长而付出努力。" },
+  "ENFP": { name:"竞选者", traits:["热情洋溢","想象力丰富","善于社交","乐观积极"], desc:"你是一个充满热情和创造力的人。你对生活抱有无限的好奇心，总是能发现事物的美好和可能性。你善于与人建立有意义的连接，用你的热情和真诚感染身边的每一个人。你享受探索新想法和新体验，不喜欢被框架限制。你的乐观精神常常给周围的人带来力量。" },
+  "ISTJ": { name:"物流师", traits:["务实可靠","责任心强","注重细节","条理分明"], desc:"你是一个务实、可靠且高度负责的人。你重视事实和细节，做事一丝不苟，承诺的事情一定会做到。你喜欢清晰的结构和明确的规则，在稳定有序的环境中发挥最佳状态。你是团队的坚实后盾，虽然不善言辞但用行动证明自己的价值。" },
+  "ISFJ": { name:"守护者", traits:["温暖可靠","细心周到","无私奉献","传统稳重"], desc:"你是一个温暖而专注的守护者。你默默关心身边的人，用实际行动而非言语来表达关爱。你拥有出色的记忆力，尤其是对细节和他人的需求。你珍视传统和稳定，在照顾他人中获得满足。你低调谦逊，但你所提供的支持和安全感是无价的。" },
+  "ESTJ": { name:"总经理", traits:["组织力强","果断高效","诚实可靠","注重规则"], desc:"你是一个出色的组织者和执行者。你善于将想法落地为具体的行动计划，并以高效的方式推进完成。你重视秩序和规则，在团队中自然地承担起管理和监督的角色。你为人诚实直接，做事有原则，值得他人信赖和依靠。" },
+  "ESFJ": { name:"执政官", traits:["热情友善","乐于助人","善于协作","责任感强"], desc:"你是一个热心且富有责任感的人。你非常关心身边人的福祉，乐于提供实际帮助。你善于营造温馨和谐的氛围，是朋友圈和家庭中的凝聚力核心。你重视传统和社会规范，在服务他人中获得成就感。你的体贴和周到让你深受周围人的喜爱。" },
+  "ISTP": { name:"鉴赏家", traits:["冷静务实","动手能力强","适应力好","独立自主"], desc:"你是一个冷静、务实且动手能力极强的人。你善于分析事物的运作原理，并享受亲自动手解决问题。你在危机中保持镇定，能迅速找到务实有效的解决方案。你喜欢自由和灵活，不喜欢被过多的规则束缚。你可能话不多，但行动力十足。" },
+  "ISFP": { name:"探险家", traits:["审美敏锐","温和友善","活在当下","自由随性"], desc:"你拥有敏锐的审美感知力和温和友善的性格。你善于发现生活中的美，并用自己独特的方式去创造和表达。你活在当下，享受每一个真实的瞬间。你不喜欢冲突和束缚，追求内心的平静和自由。你低调但真诚，用行动默默温暖着身边的人。" },
+  "ESTP": { name:"企业家", traits:["精力充沛","行动力强","机敏灵活","敢于冒险"], desc:"你是一个充满活力和行动力的人。你享受刺激和挑战，在快节奏和高风险的环境中表现得尤为出色。你思维敏捷，能迅速分析局势并果断行动。你善于社交，天生的幽默感和魅力让你成为人群中的焦点。你活在当下，不喜欢过多思考遥不可及的未来。" },
+  "ESFP": { name:"表演者", traits:["天生乐天","感染力强","享受生活","善于社交"], desc:"你是一个天生的表演者和快乐传播者。你热爱生活，享受成为人群中心的乐趣。你拥有极强的感染力，用你的热情和幽默为周围的人带来欢乐。你善于观察他人的需求并提供帮助。你喜欢丰富多彩的生活体验，不害怕尝试新鲜事物。" },
+};
+
+var answers = new Array(32).fill(-1);
+var currentQ = 0;
+
+function showPage(id) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) { pages[i].classList.remove('active'); }
+  document.getElementById('page-' + id).classList.add('active');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+function startQuiz() {
+  answers = new Array(32).fill(-1);
+  currentQ = 0;
+  renderQuestion();
+  showPage('quiz');
+}
+
+function renderQuestion() {
+  var q = questions[currentQ];
+  document.getElementById('dimTag').textContent = dimNames[q.dim];
+  document.getElementById('questionText').textContent = q.text;
+  document.getElementById('progressText').textContent = '第 ' + (currentQ + 1) + ' / 32 题';
+  document.getElementById('progressBar').style.width = ((currentQ) / 32 * 100) + '%';
+
+  var labels = ['非常不同意', '不同意', '中立', '同意', '非常同意'];
+  var html = '';
+  for (var i = 0; i < 5; i++) {
+    var sel = answers[currentQ] === i ? ' selected' : '';
+    html += '<div class="option' + sel + '" onclick="selectAnswer(' + i + ')">';
+    html += '<div class="radio"></div>';
+    html += labels[i];
+    html += '</div>';
+  }
+  document.getElementById('optionsWrap').innerHTML = html;
+
+  document.getElementById('btnPrev').style.display = currentQ === 0 ? 'none' : 'flex';
+  var btnNext = document.getElementById('btnNext');
+  btnNext.textContent = currentQ === 31 ? '查看结果' : '下一题';
+  btnNext.style.opacity = answers[currentQ] === -1 ? '0.45' : '1';
+  btnNext.style.pointerEvents = answers[currentQ] === -1 ? 'none' : 'auto';
+}
+
+function selectAnswer(idx) {
+  answers[currentQ] = idx;
+  var options = document.querySelectorAll('#optionsWrap .option');
+  options.forEach(function(o, i) { o.classList.toggle('selected', i === idx); });
+  var btnNext = document.getElementById('btnNext');
+  btnNext.style.opacity = '1';
+  btnNext.style.pointerEvents = 'auto';
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === -1) return;
+  if (currentQ < 31) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+function calcScores() {
+  var dims = ["E/I", "S/N", "T/F", "J/P"];
+  var scores = {};
+  dims.forEach(function(d) { scores[d] = 0; });
+
+  questions.forEach(function(q, idx) {
+    if (answers[idx] === -1) return;
+    var raw = q.forward ? answers[idx] : (4 - answers[idx]);
+    scores[q.dim] += raw;
+  });
+
+  dims.forEach(function(d) {
+    scores[d] = Math.round((scores[d] / 32) * 100);
+  });
+
+  return scores;
+}
+
+function getType(scores) {
+  var type = '';
+  type += scores["E/I"] >= 50 ? 'E' : 'I';
+  type += scores["S/N"] >= 50 ? 'S' : 'N';
+  type += scores["T/F"] >= 50 ? 'T' : 'F';
+  type += scores["J/P"] >= 50 ? 'J' : 'P';
+  return type;
+}
+
+function showResult() {
+  var scores = calcScores();
+  var type = getType(scores);
+  var data = typeData[type];
+
+  document.getElementById('typeBadge').textContent = type;
+  document.getElementById('typeNickname').textContent = '— ' + data.name;
+  document.getElementById('typeTitle').textContent = type + ' · ' + data.name;
+  document.getElementById('typeDesc').textContent = data.desc;
+
+  var traitsHtml = '';
+  data.traits.forEach(function(t) {
+    traitsHtml += '<span class="trait-tag">' + t + '</span>';
+  });
+  document.getElementById('typeTraits').innerHTML = traitsHtml;
+
+  var dimConfig = [
+    { dim: "E/I", left: "内向 I", right: "外向 E" },
+    { dim: "S/N", left: "直觉 N", right: "实感 S" },
+    { dim: "T/F", left: "情感 F", right: "思考 T" },
+    { dim: "J/P", left: "感知 P", right: "判断 J" },
+  ];
+
+  var scoresHtml = '';
+  dimConfig.forEach(function(c) {
+    var v = scores[c.dim];
+    var leftW = 100 - v;
+    var rightW = v;
+    scoresHtml += '<div class="score-row">';
+    scoresHtml += '<span class="score-side left">' + c.left + '</span>';
+    scoresHtml += '<div class="score-bar-wrap">';
+    scoresHtml += '<div class="score-bar-left" style="width:' + leftW + '%">' + (leftW > 15 ? (100 - v) + '%' : '') + '</div>';
+    scoresHtml += '<div class="score-bar-right" style="width:' + rightW + '%">' + (rightW > 15 ? v + '%' : '') + '</div>';
+    scoresHtml += '<div class="score-mid"></div>';
+    scoresHtml += '</div>';
+    scoresHtml += '<span class="score-side">' + c.right + '</span>';
+    scoresHtml += '</div>';
+  });
+  document.getElementById('scoresWrap').innerHTML = scoresHtml;
+
+  showPage('result');
+  window._resultData = { type: type, scores: scores, data: data };
+}
+
+function copyResult() {
+  var d = window._resultData;
+  var text = '【谢晶晶的人格测试结果】\n\n';
+  text += 'MBTI 类型：' + d.type + '（' + d.data.name + '）\n\n';
+  text += '各维度得分：\n';
+  text += '  外向(E) vs 内向(I)：' + d.scores["E/I"] + '% / ' + (100 - d.scores["E/I"]) + '%\n';
+  text += '  实感(S) vs 直觉(N)：' + d.scores["S/N"] + '% / ' + (100 - d.scores["S/N"]) + '%\n';
+  text += '  思考(T) vs 情感(F)：' + d.scores["T/F"] + '% / ' + (100 - d.scores["T/F"]) + '%\n';
+  text += '  判断(J) vs 感知(P)：' + d.scores["J/P"] + '% / ' + (100 - d.scores["J/P"]) + '%\n';
+  text += '\n特点：' + d.data.traits.join('、') + '\n';
+  text += '\n' + d.data.desc + '\n';
+
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('已复制到剪贴板');
+  }).catch(function() {
+    showToast('复制失败，请尝试生成图片');
+  });
+}
+
+function shareImage() {
+  var d = window._resultData;
+  var canvas = document.getElementById('shareCanvas');
+  canvas.style.display = 'block';
+  var ctx = canvas.getContext('2d');
+  var W = 600, H = 800;
+
+  var grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#fefaf6');
+  grad.addColorStop(0.4, '#fdf5f0');
+  grad.addColorStop(1, '#f8e8e0');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#d4556e';
+  ctx.fillRect(0, 0, W, 4);
+
+  ctx.fillStyle = 'rgba(248,200,208,0.3)';
+  ctx.beginPath();
+  ctx.arc(W - 60, 120, 100, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#c8985a';
+  ctx.font = '500 15px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('谢晶晶 · 人格测试工具', W/2, 60);
+
+  ctx.fillStyle = '#2c2420';
+  ctx.font = 'bold 32px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText('MBTI 人格测试结果', W/2, 110);
+
+  ctx.fillStyle = '#fff';
+  roundRect(ctx, W/2 - 100, 140, 200, 110, 20);
+
+  ctx.fillStyle = '#d4556e';
+  ctx.font = '900 64px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText(d.type, W/2, 210);
+
+  ctx.fillStyle = '#c8985a';
+  ctx.font = '500 16px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText(d.data.name, W/2, 270);
+
+  var tagX = 60, tagY = 305;
+  ctx.font = '500 14px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  d.data.traits.forEach(function(tag) {
+    var tw = ctx.measureText(tag).width + 28;
+    if (tagX + tw > W - 40) { tagX = 60; tagY += 38; }
+    ctx.fillStyle = 'rgba(248,200,208,0.2)';
+    roundRect(ctx, tagX, tagY - 16, tw, 30, 15);
+    ctx.fillStyle = '#b8405a';
+    ctx.fillText(tag, tagX + 14, tagY + 5);
+    tagX += tw + 10;
+  });
+
+  var divY = tagY + 45;
+  ctx.strokeStyle = '#e8d5e0';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, divY);
+  ctx.lineTo(W - 80, divY);
+  ctx.stroke();
+
+  var barY = divY + 30;
+  var dimConfig = [
+    { dim: "E/I", left: "内向 I", right: "外向 E" },
+    { dim: "S/N", left: "直觉 N", right: "实感 S" },
+    { dim: "T/F", left: "情感 F", right: "思考 T" },
+    { dim: "J/P", left: "感知 P", right: "判断 J" },
+  ];
+
+  dimConfig.forEach(function(c) {
+    var v = d.scores[c.dim];
+    ctx.fillStyle = '#5c4f4a';
+    ctx.font = '500 12px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(c.left, 75, barY + 15);
+    ctx.textAlign = 'left';
+    ctx.fillText(c.right, W - 75, barY + 15);
+
+    ctx.fillStyle = '#f0ebe5';
+    roundRect(ctx, 90, barY, W - 180, 22, 11);
+
+    var fillW = (W - 180) * (v / 100);
+    if (fillW > 0) {
+      var barGrad = ctx.createLinearGradient(90, 0, 90 + fillW, 0);
+      barGrad.addColorStop(0, '#e89098');
+      barGrad.addColorStop(1, '#d4556e');
+      ctx.fillStyle = barGrad;
+      roundRect(ctx, 90, barY, fillW, 22, 11);
+    }
+
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(W/2 - 1, barY + 2, 2, 18);
+
+    ctx.fillStyle = '#2c2420';
+    ctx.font = '600 13px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(v + '%', W/2, barY - 6);
+
+    barY += 42;
+  });
+
+  var descY = barY + 15;
+  ctx.fillStyle = '#5c4f4a';
+  ctx.font = '14px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  var descLines = wrapText(ctx, d.data.desc, W - 80);
+  descLines.forEach(function(line, i) {
+    ctx.fillText(line, W/2, descY + i * 24);
+  });
+
+  var footY = Math.max(descY + descLines.length * 24 + 30, H - 40);
+  ctx.fillStyle = '#c8985a';
+  ctx.font = '500 13px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText('谢晶晶的人格测试工具', W/2, footY);
+
+  canvas.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'MBTI-' + d.type + '.png';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('图片已生成并下载');
+  });
+  canvas.style.display = 'none';
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function wrapText(ctx, text, maxWidth) {
+  var lines = [];
+  var current = '';
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    var test = current + ch;
+    if (ctx.measureText(test).width > maxWidth && current.length > 0) {
+      lines.push(current);
+      current = ch;
+    } else {
+      current = test;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function restartQuiz() {
+  showPage('welcome');
+}
+</script>
+
+<script>
+// ===== PWA 支持（Canvas 生成图标） =====
+(function(){
+  // 生成 192x192 PNG 图标
+  var c192 = document.createElement('canvas'); c192.width = 192; c192.height = 192;
+  var ctx = c192.getContext('2d');
+  // 圆角背景
+  var grad = ctx.createLinearGradient(0,0,192,192);
+  grad.addColorStop(0,'#e8788a'); grad.addColorStop(1,'#b8405a');
+  ctx.fillStyle = grad;
+  roundR(ctx, 0, 0, 192, 192, 36);
+  // 文字
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 96px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('🌸', 96, 106);
+
+  // 生成 512x512 PNG 图标
+  var c512 = document.createElement('canvas'); c512.width = 512; c512.height = 512;
+  var ctx2 = c512.getContext('2d');
+  var grad2 = ctx2.createLinearGradient(0,0,512,512);
+  grad2.addColorStop(0,'#e8788a'); grad2.addColorStop(1,'#b8405a');
+  ctx2.fillStyle = grad2;
+  roundR(ctx2, 0, 0, 512, 512, 96);
+  ctx2.fillStyle = '#fff'; ctx2.font = 'bold 256px sans-serif'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillText('🌸', 256, 280);
+
+  function roundR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
+
+  var icon192 = c192.toDataURL('image/png');
+  var icon512 = c512.toDataURL('image/png');
+
+  // 注册 Service Worker
+  if ('serviceWorker' in navigator) {
+    var swCode = 'self.addEventListener("install",function(e){e.waitUntil(self.skipWaiting())});self.addEventListener("activate",function(e){e.waitUntil(self.clients.claim())});self.addEventListener("fetch",function(e){e.respondWith(caches.open("v1").then(function(c){return c.match(e.request).then(function(r){return r||fetch(e.request).then(function(resp){if(resp.ok){c.put(e.request,resp.clone())}return resp})})}))});';
+    var swBlob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(function(){});
+  }
+
+  // 注入 Manifest
+  var m = document.createElement('link'); m.rel = 'manifest';
+  var manifest = {
+    name:'谢晶晶的人格测试工具',
+    short_name:'人格测试',
+    description:'MBTI 16型人格测试',
+    start_url:location.href,
+    scope:location.origin + '/',
+    display:'standalone',
+    orientation:'portrait',
+    background_color:'#fefaf6',
+    theme_color:'#d4556e',
+    icons:[
+      {src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},
+      {src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}
+    ]
+  };
+  m.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));
+  document.head.appendChild(m);
+
+  // iOS splash screen
+  var splash = document.createElement('meta');
+  splash.name = 'apple-touch-startup-image';
+  splash.content = icon512;
+  document.head.appendChild(splash);
+})();
+</script>
+
+</body>
+</html>

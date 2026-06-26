@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="服药提醒">
+<meta name="theme-color" content="#f8fafc">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d9488'/><text x='50' y='68' text-anchor='middle' font-size='52'>💊</text></svg>">
+<title>服药提醒 · 谢晶晶</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --teal: #0d9488;
+  --teal-deep: #0f766e;
+  --teal-light: #ccfbf1;
+  --green: #10b981;
+  --green-light: #d1fae5;
+  --amber: #f59e0b;
+  --amber-light: #fef3c7;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --cream: #f8fafc;
+  --ink: #1e293b;
+  --ink-soft: #64748b;
+  --border: #e2e8f0;
+  --white: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.1);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 30%, #f8fafc 70%, #f0fdf4 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.app {
+  width: 100%;
+  max-width: 520px;
+  padding: 0 0 40px 0;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 28px 0 20px;
+}
+
+.header .owner {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.header .date-display {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* Cards */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.3s;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Progress ring */
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.progress-ring {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: conic-gradient(var(--green) var(--pct, 0%), var(--border) var(--pct, 0%));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.progress-ring::after {
+  content: '';
+  width: 48px; height: 48px;
+  background: #fff;
+  border-radius: 50%;
+}
+.progress-ring-inner {
+  position: absolute;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.progress-info { flex: 1; }
+.progress-info .big-num { font-size: 28px; font-weight: 700; color: var(--ink); }
+.progress-info .label { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+
+/* Medication check-in items */
+.med-check-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  gap: 12px;
+}
+
+.med-check-item.done {
+  background: var(--green-light);
+  border-color: #a7f3d0;
+}
+
+.med-check-item .time-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal);
+  background: var(--teal-light);
+  padding: 5px 10px;
+  border-radius: 6px;
+  min-width: 48px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.med-check-item.done .time-badge {
+  background: #a7f3d0;
+  color: #065f46;
+}
+
+.med-check-item .info { flex: 1; }
+.med-check-item .info .name { font-size: 15px; font-weight: 600; color: var(--ink); }
+.med-check-item .info .detail { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+
+.med-check-item.done .info .name,
+.med-check-item.done .info .detail { color: #065f46; }
+
+.check-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2.5px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  color: transparent;
+}
+
+.med-check-item.done .check-btn {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.check-btn:hover {
+  border-color: var(--green);
+  transform: scale(1.1);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+.btn-xs { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
+
+.btn-primary {
+  background: var(--teal);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(13,148,136,0.3);
+}
+.btn-primary:hover { background: var(--teal-deep); transform: translateY(-1px); }
+
+.btn-outline {
+  background: #fff;
+  color: var(--teal);
+  border: 2px solid var(--teal);
+}
+.btn-outline:hover { background: var(--teal-light); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+}
+.btn-ghost:hover { background: #f1f5f9; }
+
+.btn-danger { color: var(--red); }
+.btn-danger:hover { background: var(--red-light); }
+
+.btn-full { width: 100%; }
+
+.btn-row { display: flex; gap: 8px; }
+
+/* Section toggle */
+.section { display: none; }
+.section.active { display: block; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  color: var(--ink-soft);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: #fff;
+  color: var(--teal);
+  box-shadow: var(--shadow);
+}
+
+/* Med list */
+.med-card {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  gap: 12px;
+  transition: all 0.2s;
+}
+.med-card.inactive { opacity: 0.5; }
+
+.med-card .med-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: var(--teal-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.med-card.inactive .med-icon { background: #f1f5f9; }
+
+.med-card .med-info { flex: 1; }
+.med-card .med-info .med-name { font-weight: 600; font-size: 15px; color: var(--ink); }
+.med-card .med-info .med-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+.med-card .med-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ink-soft);
+}
+.empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty .empty-text { font-size: 15px; margin-bottom: 16px; }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  box-shadow: var(--shadow-lg);
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal h3 { font-size: 18px; color: var(--ink); margin-bottom: 20px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  outline: none;
+  color: var(--ink);
+}
+.form-group input:focus { border-color: var(--teal); }
+
+.time-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+.time-chip {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.time-chip.selected {
+  background: var(--teal-light);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.time-custom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.time-custom input {
+  width: 110px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  text-align: center;
+}
+
+/* History */
+.history-day {
+  border-left: 3px solid var(--border);
+  padding: 6px 0 6px 16px;
+  margin-left: 8px;
+}
+.history-day.good { border-left-color: var(--green); }
+.history-day.partial { border-left-color: var(--amber); }
+.history-day.missed { border-left-color: var(--red); }
+
+.history-day .h-date { font-size: 14px; font-weight: 600; color: var(--ink); }
+.history-day .h-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-120px);
+  background: #1e293b;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 200;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Reminder banner */
+.reminder-banner {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #fcd34d;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.reminder-banner.active { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #6ee7b7; }
+.reminder-banner .rb-text { font-size: 13px; font-weight: 600; color: #92400e; }
+.reminder-banner.active .rb-text { color: #065f46; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .app { padding-bottom: 20px; }
+  .card { padding: 16px; }
+  .header h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+var DATA_KEY = 'medication_data_xjj';
+function load() {
+  try { return JSON.parse(localStorage.getItem(DATA_KEY)) || { meds:[], records:{}, nextId:1 }; }
+  catch(e) { return { meds:[], records:{}, nextId:1 }; }
+}
+function save(d) { localStorage.setItem(DATA_KEY, JSON.stringify(d)); }
+
+function today() { return new Date().toISOString().slice(0,10); }
+function nowTime() {
+  var d = new Date();
+  return ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+}
+
+// ===== TOAST =====
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+// ===== MODAL =====
+var modalCallback = null;
+function openModal(html, cb) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('active');
+  modalCallback = cb || null;
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  if (modalCallback) { modalCallback(); modalCallback = null; }
+}
+function closeModalAndRefresh() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  if (modalCallback) { modalCallback(); modalCallback = null; }
+  render();
+}
+
+// ===== NOTIFICATIONS =====
+var notifyTimer = null;
+var notifyEnabled = false;
+
+function requestNotifyPermission(cb) {
+  if (!('Notification' in window)) { toast('此浏览器不支持通知'); return; }
+  if (Notification.permission === 'granted') { cb(true); return; }
+  if (Notification.permission === 'denied') { toast('通知权限已被拒绝，请在浏览器设置中开启'); cb(false); return; }
+  Notification.requestPermission().then(function(p) { cb(p === 'granted'); });
+}
+
+function startReminder() {
+  requestNotifyPermission(function(granted) {
+    if (!granted && !('Notification' in window)) return;
+    notifyEnabled = true;
+    if (notifyTimer) clearInterval(notifyTimer);
+    checkAndNotify();
+    notifyTimer = setInterval(checkAndNotify, 30000);
+    toast('提醒已开启，到时间会弹出通知');
+    render();
+  });
+}
+
+function stopReminder() {
+  notifyEnabled = false;
+  if (notifyTimer) { clearInterval(notifyTimer); notifyTimer = null; }
+  toast('提醒已关闭');
+  render();
+}
+
+function checkAndNotify() {
+  if (!notifyEnabled) return;
+  var d = load();
+  var tod = today();
+  var tm = nowTime();
+  var records = d.records[tod] || {};
+
+  d.meds.forEach(function(m) {
+    if (!m.active) return;
+    m.times.forEach(function(t) {
+      if (t === tm) {
+        var done = (records[m.id] || {})[t];
+        if (!done && Notification.permission === 'granted') {
+          new Notification('⏰ 服药提醒', {
+            body: m.name + ' · ' + m.dosage + (m.notes ? ' (' + m.notes + ')' : ''),
+            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💊</text></svg>',
+            tag: 'med-' + m.id + '-' + t,
+            requireInteraction: true,
+          });
+        }
+      }
+    });
+  });
+}
+
+// ===== RENDER =====
+function getTodayTasks(data) {
+  var tod = today();
+  var records = data.records[tod] || {};
+  var tasks = [];
+  data.meds.forEach(function(m) {
+    if (!m.active) return;
+    m.times.forEach(function(t) {
+      tasks.push({
+        id: m.id,
+        name: m.name,
+        dosage: m.dosage,
+        time: t,
+        done: !!(records[m.id] || {})[t],
+        notes: m.notes || '',
+      });
+    });
+  });
+  tasks.sort(function(a,b) { return a.time.localeCompare(b.time); });
+  return tasks;
+}
+
+function toggleCheck(medId, time) {
+  var d = load();
+  var tod = today();
+  if (!d.records[tod]) d.records[tod] = {};
+  if (!d.records[tod][medId]) d.records[tod][medId] = {};
+  d.records[tod][medId][time] = !d.records[tod][medId][time];
+  save(d);
+  render();
+}
+
+function render() {
+  var d = load();
+  var tasks = getTodayTasks(d);
+  var done = tasks.filter(function(t){ return t.done; }).length;
+  var total = tasks.length;
+  var pct = total > 0 ? Math.round(done/total*100) : 0;
+  var allDone = total > 0 && done === total;
+
+  var todayStr = new Date().getFullYear() + '年' + (new Date().getMonth()+1) + '月' + new Date().getDate() + '日';
+  var weekdays = ['日','一','二','三','四','五','六'];
+  todayStr += ' 周' + weekdays[new Date().getDay()];
+
+  var h = '';
+
+  // Header
+  h += '<div class="header">';
+  h += '<div class="owner">谢晶晶</div>';
+  h += '<h1>💊 服药提醒</h1>';
+  h += '<div class="date-display">' + todayStr + '</div>';
+  h += '</div>';
+
+  // Reminder banner
+  if (notifyEnabled) {
+    h += '<div class="reminder-banner active">';
+    h += '<span class="rb-text">🔔 提醒已开启 · 到时间会弹出通知</span>';
+    h += '<button class="btn btn-sm btn-outline" onclick="stopReminder()" style="flex-shrink:0">关闭提醒</button>';
+    h += '</div>';
+  } else {
+    h += '<div class="reminder-banner">';
+    h += '<span class="rb-text">🔕 提醒未开启</span>';
+    h += '<button class="btn btn-sm btn-primary" onclick="startReminder()" style="flex-shrink:0">开启提醒</button>';
+    h += '</div>';
+  }
+
+  // Dashboard card
+  h += '<div class="card">';
+  h += '<div class="card-header">';
+  h += '<div class="card-title">📋 今日打卡</div>';
+  h += '<span style="font-size:13px;color:var(--ink-soft);font-weight:600">' + done + '/' + total + '</span>';
+  h += '</div>';
+
+  if (total === 0) {
+    h += '<div class="empty">';
+    h += '<div class="empty-icon">💊</div>';
+    h += '<div class="empty-text">还没有添加药品</div>';
+    h += '<button class="btn btn-primary btn-sm" onclick="showAddMed()">+ 添加药品</button>';
+    h += '</div>';
+  } else {
+    // Progress bar
+    h += '<div style="background:#e2e8f0;border-radius:8px;height:10px;margin-bottom:16px;overflow:hidden">';
+    h += '<div style="background:' + (allDone ? 'var(--green)' : 'var(--teal)') + ';height:100%;border-radius:8px;width:' + pct + '%;transition:width 0.5s"></div>';
+    h += '</div>';
+
+    tasks.forEach(function(t) {
+      var cls = t.done ? ' done' : '';
+      h += '<div class="med-check-item' + cls + '">';
+      h += '<div class="time-badge">' + t.time.slice(0,5) + '</div>';
+      h += '<div class="info">';
+      h += '<div class="name">' + t.name + ' <span style="font-weight:400;font-size:13px">' + t.dosage + '</span></div>';
+      if (t.notes) h += '<div class="detail">' + t.notes + '</div>';
+      h += '</div>';
+      h += '<button class="check-btn" onclick="toggleCheck(\'' + t.id + '\',\'' + t.time + '\')">✓</button>';
+      h += '</div>';
+    });
+  }
+
+  h += '</div>'; // end dashboard card
+
+  // Quick actions
+  h += '<div class="btn-row" style="margin-bottom:16px">';
+  h += '<button class="btn btn-outline btn-sm" style="flex:1" onclick="showAddMed()">+ 添加药品</button>';
+  h += '<button class="btn btn-outline btn-sm" style="flex:1" onclick="showMedList()">管理药品 (' + d.meds.length + ')</button>';
+  h += '<button class="btn btn-outline btn-sm" style="flex:1" onclick="showHistory()">历史记录</button>';
+  h += '</div>';
+
+  // History section
+  h += '<div class="section" id="sec-history">';
+  h += '<div class="card">';
+  h += '<div class="card-header"><div class="card-title">📊 服药记录</div></div>';
+
+  var dates = Object.keys(d.records).sort().reverse().slice(0, 14);
+  if (dates.length === 0) {
+    h += '<div class="empty"><div class="empty-text">暂无记录，开始打卡吧</div></div>';
+  } else {
+    dates.forEach(function(dt) {
+      var dayRecords = d.records[dt];
+      var dtTotal = 0, dtDone = 0;
+      d.meds.forEach(function(m) {
+        if (!m.active) return;
+        m.times.forEach(function(t) {
+          dtTotal++;
+          if ((dayRecords[m.id] || {})[t]) dtDone++;
+        });
+      });
+      if (dtTotal === 0) return;
+      var dtPct = Math.round(dtDone/dtTotal*100);
+      var cls = dtPct === 100 ? 'good' : (dtPct >= 50 ? 'partial' : 'missed');
+      var dtDate = new Date(dt);
+      var dtLabel = (dtDate.getMonth()+1) + '/' + dtDate.getDate() + ' 周' + weekdays[dtDate.getDay()];
+
+      h += '<div class="history-day ' + cls + '">';
+      h += '<div class="h-date">' + dtLabel + ' · ' + dtPct + '%</div>';
+      h += '<div class="h-meta">完成 ' + dtDone + '/' + dtTotal + '</div>';
+      h += '</div>';
+    });
+  }
+  h += '</div></div>';
+
+  document.getElementById('app').innerHTML = h;
+}
+
+// ===== ADD MED MODAL =====
+function showAddMed(editMed) {
+  var isEdit = !!editMed;
+  var m = editMed || { name:'', dosage:'1片', times:['08:00'], notes:'', active:true };
+
+  var presetTimes = ['06:00','07:00','08:00','09:00','12:00','13:00','18:00','19:00','20:00','21:00','22:00'];
+  var selectedTimes = m.times.slice();
+
+  function buildTimeChips() {
+    var h = '';
+    presetTimes.forEach(function(t) {
+      var sel = selectedTimes.indexOf(t) >= 0 ? ' selected' : '';
+      h += '<button class="time-chip' + sel + '" onclick="event.preventDefault();toggleTimeChip(\'' + t + '\')">' + t + '</button>';
+    });
+    return h;
+  }
+
+  window.toggleTimeChip = function(t) {
+    var idx = selectedTimes.indexOf(t);
+    if (idx >= 0 && selectedTimes.length > 1) selectedTimes.splice(idx, 1);
+    else if (idx < 0) selectedTimes.push(t);
+    document.getElementById('timeChipsWrap').innerHTML = buildTimeChips();
+  };
+
+  var html = '';
+  html += '<h3>' + (isEdit ? '✏️ 编辑药品' : '💊 添加药品') + '</h3>';
+  html += '<div class="form-group"><label>药品名称</label><input id="fName" value="' + escHtml(m.name) + '" placeholder="如：阿莫西林"></div>';
+  html += '<div class="form-group"><label>每次剂量</label><input id="fDosage" value="' + escHtml(m.dosage) + '" placeholder="如：1片 / 5ml"></div>';
+  html += '<div class="form-group"><label>服用时间（点击选择，可多选）</label>';
+  html += '<div class="time-chips" id="timeChipsWrap">' + buildTimeChips() + '</div>';
+  html += '<div class="time-custom"><span style="font-size:12px;color:var(--ink-soft)">自定义:</span><input id="fCustomTime" placeholder="如 14:30" style="flex:1"><button class="btn btn-xs btn-outline" onclick="event.preventDefault();addCustomTime()">添加</button></div>';
+  html += '</div>';
+  html += '<div class="form-group"><label>备注</label><input id="fNotes" value="' + escHtml(m.notes) + '" placeholder="如：饭后服用"></div>';
+  html += '<div class="btn-row" style="margin-top:20px">';
+  html += '<button class="btn btn-ghost btn-sm" style="flex:1" onclick="closeModal()">取消</button>';
+  html += '<button class="btn btn-primary btn-sm" style="flex:1" onclick="saveMed(' + (isEdit ? m.id : -1) + ')">保存</button>';
+  html += '</div>';
+
+  window.addCustomTime = function() {
+    var inp = document.getElementById('fCustomTime');
+    var v = inp.value.trim();
+    if (/^\d{1,2}:\d{2}$/.test(v)) {
+      var parts = v.split(':');
+      var hh = ('0'+parseInt(parts[0])).slice(-2);
+      var mm = parts[1];
+      var ft = hh + ':' + mm;
+      if (selectedTimes.indexOf(ft) < 0) selectedTimes.push(ft);
+      document.getElementById('timeChipsWrap').innerHTML = buildTimeChips();
+      inp.value = '';
+    } else {
+      toast('时间格式不正确，如 14:30');
+    }
+  };
+
+  window.saveMed = function(editId) {
+    var name = document.getElementById('fName').value.trim();
+    if (!name) { toast('请输入药品名称'); return; }
+    var d = load();
+    if (editId >= 0) {
+      var med = d.meds.find(function(x){ return x.id === editId; });
+      if (med) {
+        med.name = name;
+        med.dosage = document.getElementById('fDosage').value.trim() || '1片';
+        med.times = selectedTags();
+        med.notes = document.getElementById('fNotes').value.trim();
+      }
+    } else {
+      d.meds.push({
+        id: d.nextId,
+        name: name,
+        dosage: document.getElementById('fDosage').value.trim() || '1片',
+        times: selectedTags(),
+        notes: document.getElementById('fNotes').value.trim(),
+        active: true,
+      });
+      d.nextId++;
+    }
+    save(d);
+    closeModalAndRefresh();
+    toast(isEdit ? '已更新' : '已添加');
+  };
+
+  function selectedTags() {
+    var chips = document.querySelectorAll('#timeChipsWrap .time-chip.selected');
+    var times = [];
+    chips.forEach(function(c) { times.push(c.textContent); });
+    return times.length > 0 ? times : ['08:00'];
+  }
+
+  openModal(html, render);
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ===== MED LIST =====
+function showMedList() {
+  var d = load();
+  var h = '<h3>💊 药品管理</h3>';
+
+  if (d.meds.length === 0) {
+    h += '<div class="empty"><div class="empty-text">暂无药品</div></div>';
+  } else {
+    h += '<div style="max-height:400px;overflow-y:auto;margin-bottom:12px">';
+    d.meds.forEach(function(m) {
+      var cls = m.active ? '' : ' inactive';
+      var timesStr = m.times.map(function(t){ return t.slice(0,5); }).join(' ');
+      h += '<div class="med-card' + cls + '">';
+      h += '<div class="med-icon">💊</div>';
+      h += '<div class="med-info">';
+      h += '<div class="med-name">' + m.name + ' <span style="font-weight:400;font-size:13px;color:var(--ink-soft)">' + m.dosage + '</span></div>';
+      h += '<div class="med-meta">' + timesStr + (m.notes ? ' · ' + m.notes : '') + '</div>';
+      h += '</div>';
+      h += '<div class="med-actions">';
+      h += '<button class="btn btn-xs btn-ghost" onclick="event.stopPropagation();toggleActive(' + m.id + ')">' + (m.active ? '停用' : '启用') + '</button>';
+      h += '<button class="btn btn-xs btn-ghost" onclick="event.stopPropagation();showAddMedById(' + m.id + ')">编辑</button>';
+      h += '<button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deleteMed(' + m.id + ')">删除</button>';
+      h += '</div>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
+  h += '<button class="btn btn-primary btn-sm btn-full" style="margin-bottom:8px" onclick="closeModal();showAddMed()">+ 添加药品</button>';
+  h += '<button class="btn btn-ghost btn-sm btn-full" onclick="closeModalAndRefresh()">关闭</button>';
+
+  window.toggleActive = function(id) {
+    var d = load();
+    var m = d.meds.find(function(x){ return x.id === id; });
+    if (m) { m.active = !m.active; save(d); }
+    showMedList();
+    render();
+  };
+
+  window.showAddMedById = function(id) {
+    var d = load();
+    var m = d.meds.find(function(x){ return x.id === id; });
+    if (m) { closeModal(); showAddMed(m); }
+  };
+
+  window.deleteMed = function(id) {
+    if (!confirm('确定要删除这个药品吗？')) return;
+    var d = load();
+    d.meds = d.meds.filter(function(x){ return x.id !== id; });
+    save(d);
+    showMedList();
+    render();
+    toast('已删除');
+  };
+
+  openModal(h, render);
+}
+
+// ===== HISTORY =====
+function showHistory() {
+  var d = load();
+  render();
+  var sec = document.getElementById('sec-history');
+  if (sec) {
+    sec.classList.toggle('active');
+    sec.scrollIntoView({ behavior:'smooth' });
+  }
+}
+
+// ===== INIT =====
+render();
+
+// Auto-check for reminders every minute
+setInterval(function() {
+  if (notifyEnabled) checkAndNotify();
+}, 60000);
+</script>
+
+<script>
+// ===== PWA 支持（Canvas 生成图标） =====
+(function(){
+  // 生成 192x192 PNG 图标
+  var c192 = document.createElement('canvas'); c192.width = 192; c192.height = 192;
+  var ctx = c192.getContext('2d');
+  var grad = ctx.createLinearGradient(0,0,192,192);
+  grad.addColorStop(0,'#14b8a6'); grad.addColorStop(1,'#0f766e');
+  ctx.fillStyle = grad;
+  roundR(ctx, 0, 0, 192, 192, 36);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 96px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('💊', 96, 106);
+
+  var c512 = document.createElement('canvas'); c512.width = 512; c512.height = 512;
+  var ctx2 = c512.getContext('2d');
+  var grad2 = ctx2.createLinearGradient(0,0,512,512);
+  grad2.addColorStop(0,'#14b8a6'); grad2.addColorStop(1,'#0f766e');
+  ctx2.fillStyle = grad2;
+  roundR(ctx2, 0, 0, 512, 512, 96);
+  ctx2.fillStyle = '#fff'; ctx2.font = 'bold 256px sans-serif'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillText('💊', 256, 280);
+
+  function roundR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
+
+  var icon192 = c192.toDataURL('image/png');
+  var icon512 = c512.toDataURL('image/png');
+
+  if ('serviceWorker' in navigator) {
+    var swCode = 'self.addEventListener("install",function(e){e.waitUntil(self.skipWaiting())});self.addEventListener("activate",function(e){e.waitUntil(self.clients.claim())});self.addEventListener("fetch",function(e){e.respondWith(caches.open("v1").then(function(c){return c.match(e.request).then(function(r){return r||fetch(e.request).then(function(resp){if(resp.ok){c.put(e.request,resp.clone())}return resp})})}))});';
+    var swBlob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(function(){});
+  }
+
+  var m = document.createElement('link'); m.rel = 'manifest';
+  var manifest = {
+    name:'服药提醒 · 谢晶晶',
+    short_name:'服药提醒',
+    description:'日常服药管理与提醒',
+    start_url:location.href,
+    scope:location.origin + '/',
+    display:'standalone',
+    orientation:'portrait',
+    background_color:'#f8fafc',
+    theme_color:'#0d9488',
+    icons:[
+      {src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},
+      {src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}
+    ]
+  };
+  m.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));
+  document.head.appendChild(m);
+
+  var splash = document.createElement('meta');
+  splash.name = 'apple-touch-startup-image';
+  splash.content = icon512;
+  document.head.appendChild(splash);
+})();
+</script>
+
+</body>
+</html>
