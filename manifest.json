@@ -1,0 +1,16 @@
+{
+  "name": "谢晶晶的人格测试工具",
+  "short_name": "人格测试",
+  "description": "探索你的性格密码，发现独一无二的自己",
+  "start_url": "/my-tools/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "https://yangguoer5201314-svg.github.io/my-tools/favicon.ico",
+      "sizes": "192x192",
+      "type": "image/x-icon"
+    }
+  ]
+}
